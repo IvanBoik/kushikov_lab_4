@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Практика 4</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container-fluid p-5">
+    <form id="main">
+        <div class="values">
+            <section class="l">
+                            <div class="inputs scrollable">
+                            </div>
+                        </section>
+            <section class="p0">
+                        <div class="inputs scrollable">
+                        </div>
+                    </section>
+             <section class="u">
+                        <div class="inputs scrollable">
+                        </div>
+                    </section>
+            <section class="a">
+                            <button class="count" type="submit">Выполнить расчет</button>
+                        </section>
+            <div class="col-lg-5">
+                <h5>Возмущения</h5>
+                <div class="container-scroll">
+
+                </div>
+                <div class="mt-4">
+                    <h5>Уравнения</h5>
+                    <div class="container-scroll scroll-2">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <h5>Начальные уравнения</h5>
+                <div class="container-scroll scroll-1">
+
+                </div>
+                <div class="mt-4">
+                    <h5 class="mb-3">Управление</h5>
+                    <div class="d-flex flex-wrap gap-3">
+
+                        <button onclick="refill()" class="px-2">Обновить значения</button>
+                    </div>
+                </div>
+            </div>
+                
+
+ 
+<!--            <canvas id="plot"></canvas>-->
+<!--            <canvas id="plot2"></canvas>-->
+        </div>
+    </form>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Параметры
+        const params = {
+            0: [true, true, true, true, true],
+
+            1: [false, true, true, true, true],
+            2: [true, false, true, true, true],
+            3: [true, true, false, true, true],
+            4: [true, true, true, false, true],
+            5: [true, true, true, true, false],
+
+            6: [false, false, true, true, true],
+            7: [false, true, false, true, true],
+            8: [true, true, false, false, true],
+            9: [false, true, true, false, true],
+            10: [false, true, true, true, false],
+            11: [true, false, true, false, true],
+            12: [true, false, true, true, false],
+            13: [true, true, false, false, true],
+            14: [true, true, false, true, false],
+            15: [true, true, true, false, false],
+
+            16: [false, false, false, true, true],
+            17: [false, false, true, false, true],
+            18: [false, false, true, true, false],
+            19: [false, true, false, false, true],
+            20: [false, true, false, true, false],
+            21: [true, false, false, false, true],
+            22: [true, false, false, true, false],
+            23: [false, true, true, false, false],
+            24: [true, false, true, false, false],
+            25: [true, true, false, false, false],
+
+            26: [false, false, false, false, true],
+            27: [false, false, false, true, false],
+            28: [false, false, true, false, false],
+            29: [false, true, false, false, false],
+            30: [true, false, false, false, false],
+
+            31: [],
+        }
+
+        const paramsDiv = document.querySelector("#main .values .p0 .inputs")
+
+        for(let key in params){
+            paramsDiv.innerHTML +=
+            `<div class="input-block">
+                <label for="P${key}" style="display: flex; justify-content: space-between;"><span>P<sub>${key}</sub> - Вероятность того, что 
+                ${params[key].length == 0 ? 'ПК1-ПК5 не работают' : 'работают ПК:'}
+                ${params[key][0] ? '1, ' : ''}
+                ${params[key][1] ? '2, ' : ''}
+                ${params[key][2] ? '3, ' : ''}
+                ${params[key][3] ? '4, ' : ''}
+                ${params[key][4] ? '5, ' : ''}</span>
+                <span class="ps-3 text-muted">Нач. знач. = </span></label>
+                <input id="P${key}" type="number" step="0.001" min="0" max="1" required value="0">
+            </div>`;
+        }
+        paramsDiv.querySelector("#P0").value = 1;
+
+        // Константы
+        const ls = {
+            "l1": "Интенсивность отказа ПК1",  
+            "l2": "Интенсивность отказа ПК2", 
+            "l3": "Интенсивность отказа ПК3", 
+            "l4": "Интенсивность отказа ПК4", 
+            "l5": "Интенсивность отказа ПК5", 
+        }
+
+        const lsDiv = document.querySelector("#main .values .l .inputs")
+
+        for(let key in ls){
+            main_key = key.replace(/[0-9]/, '');
+            sub_key = key.replace(main_key, '');
+            lsDiv.innerHTML +=
+            `<div class="input-block">
+                <label for="${key}">λ${sub_key ? `<sub>${sub_key}</sub>` : ''} - ${ls[key]}</label>
+                <input id="${key}" type="number" step="0.001" min="0" required value="1">
+            </div>`;
+        }
+
+        // Константы
+        const us = {
+            "u1": "Интенсивность восстановления ПК1",  
+            "u2": "Интенсивность восстановления ПК2", 
+            "u3": "Интенсивность восстановления ПК3", 
+            "u4": "Интенсивность восстановления ПК4", 
+            "u5": "Интенсивность восстановления ПК5",
+        }
+
+        const usDiv = document.querySelector("#main .values .u .inputs")
+
+        for(let key in us){
+            main_key = key.replace(/[0-9]/, '');
+            sub_key = key.replace(main_key, '');
+            usDiv.innerHTML +=
+            `<div class="input-block">
+                <label for="${key}">μ${sub_key ? `<sub>${sub_key}</sub>` : ''} - ${us[key]}</label>
+                <input id="${key}" type="number" step="0.001" min="0" required value="2.5">
+            </div>`;
+        }
+    </script>
+    <script>
+        const getData = () => {
+            const form = document.querySelector("#main");
+
+            //шаблон JSON-оъекта
+            let data = {
+                'p0': {},
+                'c': {},
+                't': 1,
+                'p': 1,
+            };
+
+            //из каждого '.p0 .input-block' элемента, состоящего из input с данными о начальных значениях извлекаем значения
+            let p0s = form.querySelectorAll(".p0 .input-block");
+            for (let i = 0; i < p0s.length; i++) {
+                let key = `P${i}`;
+                data['p0'][key] = Number(p0s[i].querySelector(`#${key}`).value);
+            }
+
+            //из каждого '.l .input-block' элемента, состоящего из input с данными о значениях отказа извлекаем значения
+            let ls = form.querySelectorAll(".l .input-block");
+            for (let i = 0; i < ls.length; i++) {
+                let key = `l${i+1}`;
+                data['c'][key] = Number(ls[i].querySelector(`#${key}`).value);
+            }
+
+            //из каждого '.u .input-block' элемента, состоящего из input с данными о значениях восстановления извлекаем значения
+            let us = form.querySelectorAll(".u .input-block");
+            for (let i = 0; i < ls.length; i++) {
+                let key = `u${i+1}`;
+                data['c'][key] = Number(us[i].querySelector(`#${key}`).value);
+            }
+
+            //извлекаем интервал и шаг
+            data['t'] = 1;
+            data['m'] = 1;
+
+            return data;
+        }
+    </script>
+    <script>
+
+        //Инициализация холстов для отрисовки графика и лепестковых диаграмм с применением Chart.js
+        const plot = document.getElementById('plot');
+        const plot2 = document.getElementById('plot2');
+        let chart;
+        let chart2;
+
+        //основные элементы страницы
+        const form = document.querySelector("#main");
+
+        //при отправке формы - формируем JSON-объект, требуемый для POST-запроса на вычиления
+        form.onsubmit = (e) => {
+            e.preventDefault();
+
+            let localData = getData();
+
+            //выполняем запрос при помощи FETCH
+            fetch('/api/count', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(localData)
+            })
+                .then(res => res.json())
+                .then(res => {
+                    // на основе полученного ответа отриосвываем графики, на ранее заданных холстах:
+                    console.log(res)
+                    let sol = res['solution'];
+                    let t = res['time'];
+                    creatrGraph(sol, t, localData.m); 
+                })
+                .catch(e => alert("Решение не найдено!"));
+                ;
+        }
+
+        //отрисовка графиков изменения параметров xi(t) на основе объекта решений solution
+        const creatrGraph = (solution, time, maxY) => {
+
+            //удаляем старый график
+            chart?.destroy();
+            chart2?.destroy();
+
+            //готовим шаблон для построения графика
+            let data = {
+                labels: time,
+                datasets: [],
+            }
+
+            let data2 = {
+                labels: time.filter((v,i) => i<time.length/2.5),
+                datasets: [],
+            }
+
+
+            for (let i = 0; i < solution[0].length; i++) {
+
+                let values = [];
+                for (let j = 0; j < solution.length; j++) {
+                    values.push(solution[j][i]);
+                }
+
+                let dataset = {
+                    label: 'P'+i,
+                    data: values,
+                    fill: false,
+                    borderColor: getColor(i),
+                    tension: 0.1,
+                    pointRadius: 3,
+                    borderDash: getLineStyle(i),
+                }
+                data.datasets.push(dataset);
+
+                
+                let dataset2 = {
+                    label: 'P'+i,
+                    data: values.filter((v,i) => i<values.length/2.5).map(i => i > 0.4 ? null : i),
+                    fill: false,
+                    borderColor: getColor(i),
+                    tension: 0.1,
+                    pointRadius: 3,
+                    borderDash: getLineStyle(i),
+                }
+                data2.datasets.push(dataset2);
+            }
+
+            // Отрисовываем график
+            chart = new Chart(plot, {
+                type: 'line',
+                data: data,
+                options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            align: 'center',
+                            fullSize:true,
+                            labels: {
+                                boxWidth: 20
+                            }
+                         }
+                    },
+                }
+            });
+
+            // Отрисовываем график
+            chart2 = new Chart(plot2, {
+                type: 'line',
+                data: data2,
+                options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            align: 'center',
+                            fullSize:true,
+                            labels: {
+                                boxWidth: 20
+                            }
+                         }
+                    },
+                }
+            });
+        }
+
+        const colors = ["#4800FF","#0094FF","#00FFFF","#89BF00","#00FF21","#FF9400","#007F46","#C600AC","#BC0051","#57007F","#B200FF"];
+
+        function getColor(i) {
+            return colors[i%colors.length];
+        }
+
+        function getLineStyle(i) {
+            if (i <= colors.length - 1) return [];
+            if (i <= 2*colors.length - 1) return [5, 2];
+            if (i <= 3*colors.length - 1) return [20, 5, 20, 5];
+        }
+
+    </script>
+</body>
+
+</html>

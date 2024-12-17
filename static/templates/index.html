@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Практика 4</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <form id="main" class="container py-5">
+        <div class="values row g-4">
+            <div class="col-6">
+                <section class="l ">
+                    <div class="inputs scrollable container-scroll scroll-1">
+                    </div>
+                </section>
+
+                <section class="u mt-4">
+                    <div class="inputs scrollable container-scroll scroll-1">
+                    </div>
+                </section>
+            </div>
+            <section class="p0 col-6">
+                <div class="inputs scrollable container-scroll scroll-1">
+                </div>
+            </section>
+
+                
+            <div class="col-6">
+                <section class="a d-flex flex-wrap gap-3">
+                    <button class="count" type="submit">Вычислить</button>
+                    <button type="button" onclick="fillInputsWithRandomValues()"> Обновить значения</button>
+                </section>
+            </div>
+ 
+            <canvas id="plot"></canvas>
+            <canvas id="plot2"></canvas>
+        </div>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/data.js"></script>
+    <script src="/static/js/graph.js"></script>
+    <script src="/static/js/param.js"></script>
+</body>
+</html>
