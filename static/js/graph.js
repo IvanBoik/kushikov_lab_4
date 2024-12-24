@@ -135,14 +135,17 @@
         }
 
         function fillInputsWithRandomValues() {
-            const inputs = document.querySelectorAll("input[type='number']"); // Находим все числовые инпуты
+            const inputs = document.querySelectorAll("input[type='number']");
             inputs.forEach(input => {
-                const min = parseFloat(input.min) || 0; // Минимальное значение
-                const max = parseFloat(input.max) || 1; // Максимальное значение
-                const step = parseFloat(input.step) || 0.001; // Шаг изменения
+                // Проверяем, начинается ли ID с 'P'
+                if (!input.id.startsWith('P')) {
+                    const min = parseFloat(input.min) || 0; // Минимальное значение
+                    const max = parseFloat(input.max) || 1; // Максимальное значение
+                    const step = parseFloat(input.step) || 0.001; // Шаг
 
-                // Генерация случайного значения с учетом шага
-                const randomValue = Math.floor((Math.random() * (max - min) + min) / step) * step;
-                input.value = randomValue.toFixed(3); // Устанавливаем значение в инпут с округлением до 3 знаков
+                    // Генерация случайного значения с учетом шага
+                    const randomValue = Math.round((Math.random() * (max - min) + min) / step) * step;
+                    input.value = randomValue.toFixed(3); // Устанавливаем значение
+                }
             });
         }
